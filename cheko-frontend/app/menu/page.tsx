@@ -111,7 +111,20 @@ export default function MenuPage() {
     }));
   };
 
-  const isBestSale = (item: MenuItem) => item.calorie > 80;
+  // Best value = highest calorie-to-price ratio per category (one badge per category)
+  const bestSaleIds = new Set(
+      Object.values(
+          allMenu.reduce((acc, item) => {
+            const value = item.calorie / item.price;
+            if (!acc[item.category] || value > acc[item.category].value) {
+              acc[item.category] = { id: item.id, value };
+            }
+            return acc;
+          }, {} as Record<string, { id: number; value: number }>)
+      ).map((entry) => entry.id)
+  );
+
+  const isBestSale = (item: MenuItem) => bestSaleIds.has(item.id);
 
   const handleFilterSelect = (cat: string) => {
     setSelectedCategory(cat);
