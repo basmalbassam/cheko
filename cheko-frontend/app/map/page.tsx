@@ -175,7 +175,7 @@ export default function MapPage() {
                     <span className="text-gray-400 text-sm">🔍</span>
                     <input
                         type="text"
-                        placeholder="Search restaurants..."
+                        placeholder="Search menu items..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="flex-1 py-2.5 outline-none bg-transparent text-sm dark:text-white placeholder:text-gray-400"
