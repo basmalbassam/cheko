@@ -95,7 +95,7 @@ export default function MapPage() {
                     font-family:Inter, system-ui;
                 ">
                    <img
-                        src="/Cheko_Logo.png"
+                        src="${window.location.origin}/Cheko_Logo.png"
                         style="width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0;"
                         alt="Cheko Logo"
                    />
