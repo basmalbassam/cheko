@@ -29,4 +29,9 @@ public class MenuController {
     public List<Menu> getSecondHighestCaloriePerCategory() {
         return menuService.getSecondHighestCaloriePerCategory();
     }
+
+    @GetMapping("/locations")
+    public List<Menu> getAllLocations() {
+        return menuService.getAllLocations();
+    }
 }

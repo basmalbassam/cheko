@@ -35,7 +35,7 @@ export default function MapPage() {
 
     // Fetch data
     useEffect(() => {
-        fetch(`${API_URL}/menu`)
+        fetch(`${API_URL}/menu/locations`)
             .then((res) => res.json())
             .then((data) => setMenu(data));
     }, []);
