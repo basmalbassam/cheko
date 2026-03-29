@@ -45,4 +45,9 @@ public class MenuService {
     public List<Menu> getSecondHighestCaloriePerCategory() {
         return menuRepository.findSecondHighestCaloriePerCategory();
     }
+
+    // Separate method for the map — returns ALL rows (all locations)
+    public List<Menu> getAllLocations() {
+        return menuRepository.findAll();
+    }
 }
