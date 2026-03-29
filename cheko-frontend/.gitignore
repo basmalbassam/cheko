@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+###
+   #cd ~/Documents/cheko
+   #git add .
+   #git commit -m "describe what you changed"
+   #git push
+###
