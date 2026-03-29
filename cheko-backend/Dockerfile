@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 eclipse-temurin:17-jdk-alpine AS builder
+FROM --platform=linux/amd64 eclipse-temurin:17-jdk-alpine AS build-stage
 WORKDIR /app
 COPY gradlew .
 COPY gradle gradle
