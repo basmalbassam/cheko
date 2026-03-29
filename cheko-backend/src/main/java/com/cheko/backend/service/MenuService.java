@@ -30,6 +30,15 @@ public class MenuService {
 
                     return matchesSearch && matchesCategory;
                 })
+                // Deduplicate by name, keeping the first occurrence
+                .collect(Collectors.toMap(
+                        Menu::getName,
+                        item -> item,
+                        (existing, duplicate) -> existing,   // keep first
+                        LinkedHashMap::new                   // preserve order
+                ))
+                .values()
+                .stream()
                 .toList();
     }
 
