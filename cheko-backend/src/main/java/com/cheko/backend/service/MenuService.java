@@ -4,7 +4,8 @@ import com.cheko.backend.model.Menu;
 import com.cheko.backend.repository.MenuRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MenuService {
@@ -16,7 +17,6 @@ public class MenuService {
     }
 
     public List<Menu> getMenu(String search, String category) {
-
         List<Menu> menuList = menuRepository.findAll();
 
         return menuList.stream()
