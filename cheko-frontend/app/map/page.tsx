@@ -94,10 +94,11 @@ export default function MapPage() {
                     box-shadow:0 8px 24px rgba(0,0,0,0.15);
                     font-family:Inter, system-ui;
                 ">
-                    <img
-                        src="${firstItem.image}"
-                        style="width:64px;height:64px;border-radius:12px;object-fit:cover;flex-shrink:0;"
-                     alt=""/>
+                   <img
+                        src="/Cheko_Logo.png"
+                        style="width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0;"
+                        alt="Cheko Logo"
+                   />
                     <div style="flex:1;min-width:0;">
                         <h3 style="margin:0;font-size:15px;font-weight:600;color:#1E1E1E;">
                             Cheko Restaurant
