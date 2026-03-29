@@ -14,7 +14,7 @@ RUN chmod +x gradlew && \
 
 FROM --platform=linux/amd64 eclipse-temurin:17-jre-alpine
 WORKDIR /app
-COPY --from=builder /app/build/libs/*.jar app.jar
+COPY --from=build-stage /app/build/libs/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
