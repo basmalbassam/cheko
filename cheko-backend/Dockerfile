@@ -7,6 +7,11 @@ COPY settings.gradle .
 COPY src src
 RUN chmod +x gradlew && ./gradlew build -x test
 
+# Pre-fetch Gradle dependencies before building
+RUN chmod +x gradlew && \
+    ./gradlew dependencies --no-daemon || true && \
+    ./gradlew build -x test --no-daemon \
+
 FROM --platform=linux/amd64 eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
