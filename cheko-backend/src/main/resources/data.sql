@@ -1,73 +1,9 @@
--- ───── BREAKFAST ─────
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (1, 'Avocado Toast', 'Toasted sourdough topped with smashed avocado, a perfectly poached egg, chili flakes, and a drizzle of olive oil. A fresh and energizing start to your day.', 32, 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=640&h=480&fit=crop', 420, 'Breakfast', 24.7136, 46.6753)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (2, 'Fluffy Pancakes', 'A golden stack of thick, fluffy pancakes served with warm maple syrup and a dusting of powdered sugar. Soft on the inside, lightly crisp on the edges.', 28, 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=640&h=480&fit=crop', 520, 'Breakfast', 24.6877, 46.7219)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (3, 'Blueberry Pancakes', 'Buttermilk pancakes stacked high and topped with fresh blueberries. Sweet, fruity, and irresistible.', 30, 'https://images.unsplash.com/photo-1506084868230-bb9d95c24759?w=640&h=480&fit=crop', 540, 'Breakfast', 24.8, 46.75)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (4, 'Eggs Benedict', 'A perfectly poached egg with a gloriously runny yolk, layered over silky smoked salmon on a toasted muffin, smothered in rich hollandaise sauce and finished with a crack of black pepper and dried herbs.', 35, 'https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=640&h=480&fit=crop', 480, 'Breakfast', 24.72, 46.63)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (5, 'Crispy Waffles', 'Two golden Belgian waffles with perfectly defined deep pockets and a crisp, lightly caramelized exterior, with fresh blueberries and a side of warm maple syrup.', 27, 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=640&h=480&fit=crop', 510, 'Breakfast', 24.75, 46.72)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (6, 'French Toast', 'Triangle-cut French toast slices , golden and caramelized on the outside with a soft custardy interior, served with whipped cream and fresh strawberries.', 29, 'https://images.unsplash.com/photo-1588484588657-0bbbee05132f?w=640&h=480&fit=crop', 530, 'Breakfast', 24.6877, 46.7219)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (7, 'Golden Fried Eggs', 'farm-fresh eggs fried in butter until the whites are set and the yolks are still gloriously runny, served on rustic toasted bread with a sprinkle of sea salt.', 22, 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=640&h=480&fit=crop', 300, 'Breakfast', 24.7136, 46.6753)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (8, 'Smoothie Bowl', 'A thick and creamy acai smoothie bowl loaded with granola, sliced banana, fresh kiwi, chia seeds, and a drizzle of honey. Nutritious, vibrant, and filling.', 25, 'https://images.unsplash.com/photo-1494597564530-871f2b93ac55?w=640&h=480&fit=crop', 350, 'Breakfast', 24.8, 46.75)
-    ON CONFLICT (id) DO NOTHING;
-
--- ───── DRINKS ─────
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (9, 'Americano', 'A bold shot of espresso diluted with hot water, strong, and unapologetically rich — the purist choice for true coffee lovers.', 8, 'https://images.unsplash.com/photo-1587985782608-20062892559d?w=640&h=480&fit=crop', 5, 'Drinks', 24.75, 46.72)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (10, 'Flat White', 'A double ristretto espresso topped with velvety microfoam milk, served in a small ceramic cup with a delicate latte art rosette. Intense, creamy, and perfectly balanced — the coffee lover''s daily ritual.', 12, 'https://images.unsplash.com/photo-1611564494260-6f21b80af7ea?w=640&h=480&fit=crop', 120, 'Drinks', 24.6877, 46.7219)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (11, 'Chinese Black Tea', 'A ruby-red tea, served alongside a handcrafted clay teapot on a bamboo tray. Earthy, smooth, and ceremonial — brewed the traditional way for a mindful, unhurried moment.', 6, 'https://images.unsplash.com/photo-1558160074-4d7d8bdf4256?w=640&h=480&fit=crop', 2, 'Drinks', 24.72, 46.63)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (12, 'Herbal Tea', 'A golden floral tea blooming with a dried chrysanthemum, lavender buds, and rose hips. Fragrant, healing, and beautifully wild.', 7, 'https://images.unsplash.com/photo-1514733670139-4d87a1941d55?w=640&h=480&fit=crop', 5, 'Drinks', 24.7136, 46.6753)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (13, 'Fresh Orange Juice', 'Bright, sun-coloured orange juice served in a chiselled crystal glass, garnished with two fresh orange wedges. Naturally sweet, pulpy, and vibrantly refreshing — squeezed to order and served chilled.', 14, 'https://images.unsplash.com/photo-1641659735894-45046caad624?w=640&h=480&fit=crop', 110, 'Drinks', 24.75, 46.72)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (14, 'Lemon Mint Cooler', 'A tall glass of freshly squeezed lemonade packed with ice and vibrant mint leaves, surrounded by whole and halved lemons on a rustic wooden board. Ice-cold, zesty, and incredibly refreshing.', 13, 'https://images.unsplash.com/photo-1507281549113-040fcfef650e?w=640&h=480&fit=crop', 90, 'Drinks', 24.6877, 46.7219)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (15, 'Soft Drinks', 'A chilled lineup of classic fizzy favourites — Coca-Cola, Diet Coke, Fanta, and Sprite — served ice-cold in the can. Pick your flavour and enjoy the perfect refreshing sip alongside your meal.', 6, 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=640&h=480&fit=crop', 140, 'Drinks', 24.7136, 46.6753)
-    ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (16, 'Mocktail Trio', 'Three vibrant alcohol-free cocktails lined up on a warm wooden bar — a creamy pineapple cherry blend, a crisp lime mojito with fresh mint, and a bold dragon fruit cooler. Festive, fruity, and completely refreshing.', 18, 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=640&h=480&fit=crop', 150, 'Drinks', 24.72, 46.63)
-    ON CONFLICT (id) DO NOTHING;
-
--- ───── SOUPS ─────
-INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
-VALUES (17, 'Ramen Bowl', 'Ramen bowl, packed with springy noodles, a jammy soft-boiled egg, sweet corn, spiced minced meat, crisp bok choy, fresh lettuce, and spring onions in a rich savoury broth. A complete, satisfying bowl.', 28, 'https://images.unsplash.com/photo-1591814468924-caf88d1232e1?w=640&h=480&fit=crop', 450, 'Soups', 24.7136, 46.6753)
-    ON CONFLICT (id) DO NOTHING;
+-- 5 RESTAURANT LOCATIONS
+--   R1 (24.7136, 46.6753) — Full menu  — ids   1-30
+--   R2 (24.6877, 46.7219) — Full menu  — ids  31-60
+--   R3 (24.7500, 46.7200) — Full menu  — ids  61-90
+--   R4 (24.7200, 46.6500) — No Breakfast — ids  91-112
+--   R5 (24.6600, 46.7000) — No Breakfast — ids 113-134
 
 INSERT INTO menu (id, name, description, price, image, calorie, category, lat, lng)
 VALUES (18, 'Tomato Basil Soup', 'Slow-roasted vine tomatoes blended with fresh basil, garlic, and a swirl of cream. Velvety smooth and deeply flavourful, served with crusty sourdough on the side.', 22, 'https://images.unsplash.com/photo-1603105037880-880cd4edfb0d?w=640&h=480&fit=crop', 200, 'Soups', 24.75, 46.72)
