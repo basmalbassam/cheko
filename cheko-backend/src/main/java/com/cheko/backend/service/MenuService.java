@@ -47,7 +47,7 @@ public class MenuService {
         return menuRepository.findSecondHighestCaloriePerCategory();
     }
 
-    // Separate method for the map — returns ALL rows (all locations)
+    // Returns all menu items including duplicates (all locations)
     public List<Menu> getAllLocations() {
         return menuRepository.findAll();
     }
