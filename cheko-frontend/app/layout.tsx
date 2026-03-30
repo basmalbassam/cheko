@@ -4,10 +4,6 @@ import "./globals.css";
 import NavBar from "./components/NavBar";
 
 
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
     title: "Cheko",
