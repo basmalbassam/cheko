@@ -37,9 +37,9 @@ public class MenuService {
                         (existing, duplicate) -> existing, // keep first, no duplicate
                         LinkedHashMap::new // preserve order
                 ))
-                .values()
-                .stream()
-                .toList();
+                .values() // take menu objects from the map
+                .stream() // convert map --> stream
+                .toList(); // converts to list
     }
 
     public List<Menu> getSecondHighestCaloriePerCategory() {
