@@ -17,6 +17,7 @@ public class MenuController {
         this.menuService = menuService;
     }
 
+    // Get all menu items (no params), search by name or description, filter by category
     @GetMapping
     public List<Menu> getMenu(
             @RequestParam(required = false) String search,
