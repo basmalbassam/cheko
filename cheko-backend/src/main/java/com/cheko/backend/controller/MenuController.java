@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/menu")
-@CrossOrigin (origins = "http://localhost:3000")
+@RestController // handle HTTP request and convert values to JSON
+@RequestMapping("/menu") // all endpoints start with /menu
+@CrossOrigin (origins = "http://localhost:3000") // only call this API
 public class MenuController {
 
     private final MenuService menuService;
