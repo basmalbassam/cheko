@@ -1,9 +1,11 @@
 FROM amazoncorretto:17-alpine AS build-stage
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle .
+COPY settings.gradle .
+COPY src src
+RUN chmod +x gradlew && ./gradlew build -x test --no-daemon
 
 FROM amazoncorretto:17-alpine
 WORKDIR /app
