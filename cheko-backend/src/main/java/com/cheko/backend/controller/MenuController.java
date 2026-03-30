@@ -26,6 +26,7 @@ public class MenuController {
         return menuService.getMenu(search, category);
     }
 
+    // Get @Query in MenuRepository from MenuService
     @GetMapping("/second-highest-calorie")
     public List<Menu> getSecondHighestCaloriePerCategory() {
         return menuService.getSecondHighestCaloriePerCategory();
