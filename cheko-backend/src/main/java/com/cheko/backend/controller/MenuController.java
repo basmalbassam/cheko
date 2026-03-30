@@ -8,7 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/menu")
-@CrossOrigin
+@CrossOrigin (origins = "http://localhost:3000")
 public class MenuController {
 
     private final MenuService menuService;
