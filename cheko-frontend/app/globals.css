@@ -11,10 +11,6 @@ body {
 
 
 
-html.dark {
-  background: #121212;
-}
-
 .mapboxgl-popup-content {
   background: transparent !important;
   padding: 0 !important;
