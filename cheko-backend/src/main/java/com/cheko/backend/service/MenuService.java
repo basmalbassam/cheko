@@ -30,12 +30,12 @@ public class MenuService {
 
                     return matchesSearch && matchesCategory;
                 })
-                // Deduplicate by name, keeping the first occurrence
-                .collect(Collectors.toMap(
-                        Menu::getName,
-                        item -> item,
-                        (existing, duplicate) -> existing,   // keep first
-                        LinkedHashMap::new                   // preserve order
+                // Deduplicate by name, keeping the first one
+                .collect(Collectors.toMap( // convert stream --> map (key -> value)
+                        Menu::getName, // item Name as key
+                        item -> item, // item itself as value
+                        (existing, duplicate) -> existing, // keep first, no duplicate
+                        LinkedHashMap::new // preserve order
                 ))
                 .values()
                 .stream()
