@@ -42,6 +42,7 @@ public class MenuService {
                 .toList(); // converts to list
     }
 
+    // Call @Query in MenuRepository
     public List<Menu> getSecondHighestCaloriePerCategory() {
         return menuRepository.findSecondHighestCaloriePerCategory();
     }
