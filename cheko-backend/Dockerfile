@@ -9,12 +9,9 @@ RUN chmod +x gradlew && ./gradlew build -x test --no-daemon
 
 FROM amazoncorretto:17-alpine
 WORKDIR /app
-COPY --from=build-stage /app/.next/standalone ./
-COPY --from=build-stage /app/.next/static ./.next/static
-COPY --from=build-stage /app/public ./public
-EXPOSE 3000
-ENV NODE_ENV=production
-CMD ["node", "server.js"]
+COPY --from=build-stage /app/build/libs/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ###
  #docker compose down -v
