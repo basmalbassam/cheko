@@ -80,7 +80,6 @@ export default function MapPage() {
         const restaurants = getRestaurants(menu);
 
         restaurants.forEach((restaurant) => {
-            const firstItem = restaurant.items[0];
 
             const popupHTML = `
                 <div style="
