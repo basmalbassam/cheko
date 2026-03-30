@@ -20,7 +20,7 @@ type Restaurant = {
     items: MenuItem[];
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
 
 export default function MapPage() {
     const mapContainer = useRef<HTMLDivElement | null>(null);
