@@ -115,9 +115,8 @@ export default function MenuPage() {
   const bestSaleIds = new Set(
       Object.values(
           allMenu.reduce((acc, item) => {
-            const value = item.calorie / item.price;
-            if (!acc[item.category] || value > acc[item.category].value) {
-              acc[item.category] = { id: item.id, value };
+            if (!acc[item.category] || item.price < acc[item.category].value) {
+              acc[item.category] = { id: item.id, value: item.price };
             }
             return acc;
           }, {} as Record<string, { id: number; value: number }>)
