@@ -42,15 +42,7 @@ export default function MenuPage() {
   }, []);
 
   // Close filter dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
-        setFilterOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+
 
   // Items the user has added to cart (count > 0)
   const orderedItems = allMenu.filter((item) => (counts[item.id] || 0) > 0);
