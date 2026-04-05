@@ -1,5 +1,6 @@
 package com.cheko.backend.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -19,9 +20,13 @@ public class Menu {
     private double lat;
     private double lng;
 
+    // FK that links menu with restaurant
+    @Column(name = "restaurant_id")
+    private int restaurantId;
+
     public Menu() {}
 
-    public Menu(int id, String name, String description, double price, String image, int calorie, String category, double lat, double lng) {
+    public Menu(int id, String name, String description, double price, String image, int calorie, String category, double lat, double lng, int restaurantId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -31,6 +36,7 @@ public class Menu {
         this.category = category;
         this.lat = lat;
         this.lng = lng;
+        this.restaurantId = restaurantId;
     }
 
 
@@ -60,4 +66,7 @@ public class Menu {
 
     public double getLng() { return lng; }
     public void setLng(double lng) { this.lng = lng; }
+
+    public int getRestaurantId() { return restaurantId; }
+    public void setRestaurantId(int restaurantId) { this.restaurantId = restaurantId; }
 }
