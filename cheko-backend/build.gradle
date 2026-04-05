@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
-	implementation 'org.springframework.boot:spring-boot-starter-web' //Enables @RestController, @GetMapping in MenuController.java
+	implementation 'org.springframework.boot:spring-boot-starter-web' // enables @RestController, @GetMapping in MenuController.java
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	runtimeOnly 'org.postgresql:postgresql'

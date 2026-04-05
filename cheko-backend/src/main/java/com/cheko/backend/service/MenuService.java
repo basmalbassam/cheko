@@ -30,24 +30,24 @@ public class MenuService {
 
                     return matchesSearch && matchesCategory;
                 })
-                // Deduplicate by name, keeping the first one
-                .collect(Collectors.toMap( // convert stream --> map (key -> value)
-                        Menu::getName, // item Name as key
-                        item -> item, // item itself as value
-                        (existing, duplicate) -> existing, // keep first, no duplicate
-                        LinkedHashMap::new // preserve order
+                // deduplicate by name, keeping the first one
+                .collect(Collectors.toMap(                              // convert stream --> map (key -> value)
+                        Menu::getName,                                  // item Name as key
+                        item -> item,                             // item itself as value
+                        (existing, duplicate) -> existing,  // keep first, no duplicate
+                        LinkedHashMap::new                              // preserve order
                 ))
-                .values() // take menu objects from the map
-                .stream() // convert map --> stream
+                .values()  // take menu objects from the map
+                .stream()  // convert map --> stream
                 .toList(); // converts to list
     }
 
-    // Call @Query in MenuRepository
+    // call @Query in MenuRepository
     public List<Menu> getSecondHighestCaloriePerCategory() {
         return menuRepository.findSecondHighestCaloriePerCategory();
     }
 
-    // Returns all menu items including duplicates (all locations)
+    // returns all menu items including duplicates (all locations)
     public List<Menu> getAllLocations() {
         return menuRepository.findAll();
     }

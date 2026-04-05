@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController // handle HTTP request and convert values to JSON
-@RequestMapping("/menu") // all endpoints start with /menu
+@RestController                                   // handle HTTP request and convert values to JSON
+@RequestMapping("/menu")                       // all endpoints start with /menu
 @CrossOrigin (origins = "http://localhost:3000") // only call this API
 public class MenuController {
 
@@ -17,7 +17,7 @@ public class MenuController {
         this.menuService = menuService;
     }
 
-    // Get all menu items (no params), search by name or description, filter by category
+    // get all menu items (no params), search by name or description, filter by category
     @GetMapping
     public List<Menu> getMenu(
             @RequestParam(required = false) String search,
@@ -26,7 +26,7 @@ public class MenuController {
         return menuService.getMenu(search, category);
     }
 
-    // Get @Query in MenuRepository from MenuService
+    // get @Query in MenuRepository from MenuService
     @GetMapping("/second-highest-calorie")
     public List<Menu> getSecondHighestCaloriePerCategory() {
         return menuService.getSecondHighestCaloriePerCategory();

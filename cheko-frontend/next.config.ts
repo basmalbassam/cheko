@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: "standalone",
+    output: 'standalone',
+    async rewrites() {
+            return [
+                {
+                    source: '/api/:path*',
+                    destination: 'http://backend:8080/:path*',  // Docker internal
+                },
+            ];
+    },
 };
 
 module.exports = nextConfig;

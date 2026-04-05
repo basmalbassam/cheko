@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// Types
+// Type for each menu item coming from the backend
 type MenuItem = {
   id: number;
   name: string;
@@ -14,7 +14,7 @@ type MenuItem = {
 };
 
 // Category icon map
-const CATEGORY_ICONS: Record<string, string> = {
+const CategoryIcons: Record<string, string> = {
   Breakfast: "🍳",
   Drinks: "☕",
   Soups: "🍲",
@@ -23,101 +23,145 @@ const CATEGORY_ICONS: Record<string, string> = {
   Orders: "📋",
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export default function MenuPage() {
-  const [allMenu, setAllMenu] = useState<MenuItem[]>([]);
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [counts, setCounts] = useState<Record<number, number>>({});
-  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-  const [filterOpen, setFilterOpen] = useState(false);
-  const filterRef = useRef<HTMLDivElement>(null);
+  const [allMenu, setAllMenu] = useState<MenuItem[]>([]);                                // all menu items fetched from backend
+  const [search, setSearch] = useState("");                                    // search text typed by the user
+  const [selectedCategory, setSelectedCategory] = useState("All");             // selected category tab
+  const [counts, setCounts] = useState<Record<number, number>>({});                      // how many item the user add { itemId: count }
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);     // the item the user click, null = no popup
+  const [filterOpen, setFilterOpen] = useState(false);                         // filter dropdown open or closed
+  const filterRef = useRef<HTMLDivElement>(null); // reference to the filter dropdown, detect outside clicks to close it
 
   // Fetch data
   useEffect(() => {
-    fetch(`${API_URL}/menu`)
+    fetch(`/api/menu`)
         .then((res) => res.json())
         .then((data) => setAllMenu(data));
   }, []);
 
-  // Close filter dropdown when clicking outside
+
+  // items the user has added, count > 0
+  const orderedItems: MenuItem[] = [];
+  for (const item of allMenu) {
+    if (counts[item.id] > 0) {
+      orderedItems.push(item);
+    }
+  }
+
+  // total count of all ordered items
+  let totalOrderCount = 0;
+  for (const item of orderedItems) {
+    totalOrderCount += counts[item.id];
+  }
 
 
-  // Items the user has added to cart (count > 0)
-  const orderedItems = allMenu.filter((item) => (counts[item.id] || 0) > 0);
-  const totalOrderCount = orderedItems.reduce(
-      (sum, item) => sum + (counts[item.id] || 0),
-      0
-  );
+  // get categories only from menu
+  const dataCategories: string[] = [];
+  for (const item of allMenu) {
+    if (!dataCategories.includes(item.category)) {
+      dataCategories.push(item.category);
+    }
+  }
+  dataCategories.sort();
 
-  // Derive real categories dynamically from data
-  const dataCategories = Array.from(
-      new Set(allMenu.map((item) => item.category))
-  ).sort();
 
-  // Tabs: All + real categories + Orders (always last)
   const tabs = ["All", ...dataCategories, "Orders"];
 
+  // number in brackets next to each tab
   const categoryCount = (category: string) => {
     if (category === "All") return allMenu.length;
     if (category === "Orders") return totalOrderCount;
-    return allMenu.filter((item) => item.category === category).length;
+
+    let count = 0;
+    for (const item of allMenu) {
+      if (item.category === category) count++;
+    }
+    return count;
   };
 
   const isOrdersTab = selectedCategory === "Orders";
 
-  const filteredMenu = (isOrdersTab ? orderedItems : allMenu).filter((item) => {
+  // filter items based on search and selected category
+  const sourceList = isOrdersTab ? orderedItems : allMenu;
+  const filteredMenu: MenuItem[] = [];
+
+  for (const item of sourceList) {
+    // check if item matches the search text (name or description)
     const matchesSearch =
-        item.name.toLowerCase().includes(search.toLowerCase()) ||
-        item.description.toLowerCase().includes(search.toLowerCase());
+        item.name.toLowerCase().includes(search.toLowerCase()) || item.description.toLowerCase().includes(search.toLowerCase());
 
+    // check if item matches the selected category
     const matchesCategory =
-        isOrdersTab ||
-        selectedCategory === "All" ||
-        item.category === selectedCategory;
+        isOrdersTab || selectedCategory === "All" || item.category === selectedCategory;
 
-    return matchesSearch && matchesCategory;
-  });
+    if (matchesSearch && matchesCategory) {
+      filteredMenu.push(item);
+    }
+  }
 
-  const sectionsToShow = isOrdersTab
-      ? Array.from(new Set(orderedItems.map((i) => i.category))).sort()
-      : selectedCategory === "All"
-          ? dataCategories
-          : [selectedCategory];
+  //Orders tap: ordered items, All tab: all categories, Specific category: one category
+  let sectionsToShow: string[] = [];
 
-  const groupedMenu = sectionsToShow.reduce((acc, cat) => {
-    const items = filteredMenu.filter((item) => item.category === cat);
-    if (items.length > 0) acc[cat] = items;
-    return acc;
-  }, {} as Record<string, MenuItem[]>);
+  if (isOrdersTab) {
+    // show only categories of ordered items
+    for (const item of orderedItems) {
+      if (!sectionsToShow.includes(item.category)) {
+        sectionsToShow.push(item.category);
+      }
+    }
+    sectionsToShow.sort();
+  } else if (selectedCategory === "All") {
+    sectionsToShow = dataCategories;
+  } else {
+    sectionsToShow = [selectedCategory];
+  }
 
+  // groups filtered items by category
+  const groupedMenu: Record<string, MenuItem[]> = {};
+  for (const cat of sectionsToShow) {
+    const items: MenuItem[] = [];
+    for (const item of filteredMenu) {
+      if (item.category === cat) {
+        items.push(item);
+      }
+    }
+    if (items.length > 0) {
+      groupedMenu[cat] = items;
+    }
+  }
+
+  // increases count for this item by 1
   const increase = (id: number) => {
     setCounts((prev) => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
   };
 
+  // decrease count for this specific item by 1 (no negative)
   const decrease = (id: number) => {
-    setCounts((prev) => ({
-      ...prev,
-      [id]: Math.max((prev[id] || 0) - 1, 0),
-    }));
+    const current = counts[id] || 0;
+    if (current > 0) {
+      setCounts((prev) => ({ ...prev, [id]: current - 1 }));
+    }
   };
 
-  // Best value = highest calorie-to-price ratio per category (one badge per category)
-  const bestSaleIds = new Set(
-      Object.values(
-          allMenu.reduce((acc, item) => {
-            if (!acc[item.category] || item.price < acc[item.category].value) {
-              acc[item.category] = { id: item.id, value: item.price };
-            }
-            return acc;
-          }, {} as Record<string, { id: number; value: number }>)
-      ).map((entry) => entry.id)
-  );
+  // best sale
+  // find the cheapest price in each category
+  const cheapestPerCategory: Record<string, number> = {};
+  for (const item of allMenu) {
+    if (
+        cheapestPerCategory[item.category] === undefined || item.price < cheapestPerCategory[item.category]
+    ) {
+      cheapestPerCategory[item.category] = item.price;
+    }
+  }
 
-  const isBestSale = (item: MenuItem) => bestSaleIds.has(item.id);
+  // if price equals the cheapest in its category = best sale
+  const isBestSale = (item: MenuItem) => {
+    return item.price === cheapestPerCategory[item.category];
+  };
 
-  const handleFilterSelect = (cat: string) => {
+
+  const FilterSelect = (cat: string) => {
     setSelectedCategory(cat);
     setFilterOpen(false);
   };
@@ -125,8 +169,10 @@ export default function MenuPage() {
   return (
       <div className="p-6 max-w-6xl mx-auto">
 
-        {/* Search + Filter Bar */}
+        {/* search + filter bar */}
         <div className="flex gap-3 mb-5">
+
+          {/* search input */}
           <div className="flex items-center gap-2 border border-gray-200 dark:border-gray-700 rounded-xl px-4 flex-1 bg-white dark:bg-[#1E1E1E]">
             <span className="text-gray-400 text-sm">🔍</span>
             <input
@@ -138,7 +184,7 @@ export default function MenuPage() {
             />
           </div>
 
-          {/* Filter button with dropdown */}
+          {/* filter button with dropdown */}
           <div className="relative" ref={filterRef}>
             <button
                 onClick={() => setFilterOpen((prev) => !prev)}
@@ -150,6 +196,7 @@ export default function MenuPage() {
             >
               <span className="text-gray-400">≡</span>
               <span>Filter</span>
+              {/* Badge shows when a category filter is active */}
               {selectedCategory !== "All" && selectedCategory !== "Orders" && (
                   <span className="bg-pink-400 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                                 1
@@ -157,15 +204,17 @@ export default function MenuPage() {
               )}
             </button>
 
+            {/* dropdown menu */}
             {filterOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#1E1E1E] border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 overflow-hidden">
                   <div className="p-2">
                     <p className="text-xs text-gray-400 px-2 py-1 mb-1">Filter by category</p>
 
+                    {/* category options */}
                     {["All", ...dataCategories].map((cat) => (
                         <button
                             key={cat}
-                            onClick={() => handleFilterSelect(cat)}
+                            onClick={() => FilterSelect(cat)}
                             className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition ${
                                 selectedCategory === cat
                                     ? "bg-pink-100 dark:bg-pink-900/40 text-pink-700 dark:text-pink-300"
@@ -173,7 +222,7 @@ export default function MenuPage() {
                             }`}
                         >
                                         <span className="flex items-center gap-2">
-                                            <span>{CATEGORY_ICONS[cat] ?? "🍽"}</span>
+                                            <span>{CategoryIcons[cat] ?? "🍽"}</span>
                                             <span>{cat}</span>
                                         </span>
                           <span className="text-xs text-gray-400">
@@ -182,9 +231,10 @@ export default function MenuPage() {
                         </button>
                     ))}
 
+                    {/* clear filter button */}
                     {selectedCategory !== "All" && selectedCategory !== "Orders" && (
                         <button
-                            onClick={() => handleFilterSelect("All")}
+                            onClick={() => FilterSelect("All")}
                             className="w-full mt-1 px-3 py-2 text-xs text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition text-left"
                         >
                           ✕ Clear filter
@@ -195,12 +245,13 @@ export default function MenuPage() {
             )}
           </div>
 
+          {/* search button */}
           <button className="bg-pink-300 text-black px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-pink-400 transition">
             Search
           </button>
         </div>
 
-        {/* Category Chips */}
+        {/* category Chips */}
         <div className="flex gap-3 mb-6 flex-wrap">
           {tabs.map((cat) => (
               <button
@@ -212,14 +263,14 @@ export default function MenuPage() {
                           : "bg-gray-100 dark:bg-[#2A2A2A] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333]"
                   }`}
               >
-                <span>{CATEGORY_ICONS[cat] ?? "🍽"}</span>
+                <span>{CategoryIcons[cat] ?? "🍽"}</span>
                 <span>{cat}</span>
                 <span className="text-xs opacity-60">({categoryCount(cat)})</span>
               </button>
           ))}
         </div>
 
-        {/* Empty Orders state */}
+        {/* empty Orders state */}
         {isOrdersTab && orderedItems.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-gray-400 gap-3">
               <span className="text-5xl">🛒</span>
@@ -228,9 +279,11 @@ export default function MenuPage() {
             </div>
         )}
 
-        {/* Menu Sections */}
+        {/* menu Sections, one section per category */}
         {Object.entries(groupedMenu).map(([category, items]) => (
             <div key={category} className="mb-8">
+
+              {/* category title */}
               <h2 className="text-lg font-semibold mb-4 dark:text-white">{category}</h2>
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -240,13 +293,14 @@ export default function MenuPage() {
                         className="bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex overflow-hidden cursor-pointer hover:shadow-md transition"
                         onClick={() => setSelectedItem(item)}
                     >
-                      {/* Item Image */}
+                      {/* item image */}
                       <div className="relative w-24 flex-shrink-0">
                         <img
                             src={item.image}
                             alt={item.name}
                             className="w-full h-full object-cover"
                         />
+                        {/* best Sale badge */}
                         {isBestSale(item) && (
                             <span className="absolute top-1.5 left-1.5 bg-green-400 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
                                             Best Sale
@@ -254,7 +308,7 @@ export default function MenuPage() {
                         )}
                       </div>
 
-                      {/* Item Info */}
+                      {/* item info */}
                       <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
                         <div>
                           <h3 className="font-semibold text-sm truncate dark:text-white">
@@ -265,6 +319,7 @@ export default function MenuPage() {
                           </p>
                         </div>
 
+                        {/* price + counter (stopPropagation prevents card click) */}
                         <div
                             className="flex items-center justify-between mt-2"
                             onClick={(e) => e.stopPropagation()}
@@ -298,22 +353,24 @@ export default function MenuPage() {
             </div>
         ))}
 
+        {/* no results message */}
         {!isOrdersTab && filteredMenu.length === 0 && (
             <div className="text-center py-24 text-gray-400">
               No items found.
             </div>
         )}
 
-        {/* Detail Popup */}
+        {/* detail popup, shows when user clicks a card */}
         {selectedItem && (
             <div
                 className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-                onClick={() => setSelectedItem(null)}
+                onClick={() => setSelectedItem(null)} // clicking overlay closes popup
             >
               <div
                   className="bg-white dark:bg-[#1E1E1E] rounded-2xl w-full max-w-sm relative overflow-hidden shadow-2xl"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()} // clicking inside doesn't close
               >
+                {/* close button */}
                 <button
                     onClick={() => setSelectedItem(null)}
                     className="absolute top-3 right-3 z-10 w-7 h-7 bg-gray-100 dark:bg-[#333] rounded-full flex items-center justify-center text-xs text-gray-500 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#444] transition"
@@ -321,6 +378,7 @@ export default function MenuPage() {
                   ✕
                 </button>
 
+                {/* item details */}
                 <div className="p-5 pb-3">
                   <div className="flex items-center gap-2 mb-1">
                     <h2 className="text-lg font-semibold dark:text-white">
@@ -342,12 +400,14 @@ export default function MenuPage() {
                   </p>
                 </div>
 
+                {/* item image */}
                 <img
                     src={selectedItem.image}
                     alt={selectedItem.name}
                     className="w-full h-48 object-cover"
                 />
 
+                {/* price + counter */}
                 <div className="p-5 flex items-center justify-between">
                             <span className="font-bold text-gray-800 dark:text-white">
                                 {selectedItem.price} SAR

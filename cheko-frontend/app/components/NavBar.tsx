@@ -2,39 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function NavBar() {
     const pathname = usePathname();
-    const [dark, setDark] = useState(() => {
-        if (typeof window === "undefined") return false;
-        return localStorage.getItem("theme") === "dark";
-    });
-
-    useEffect(() => {
-        if (dark) {
-            document.documentElement.classList.add("dark");
-            document.documentElement.style.backgroundColor = "#121212";
-            document.body.style.backgroundColor = "#121212";
-        }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    const [dark, setDark] = useState(false);
 
     const toggleTheme = () => {
         const isDark = !dark;
         setDark(isDark);
         if (isDark) {
             document.documentElement.classList.add("dark");
-            document.documentElement.style.backgroundColor = "#121212";
-            document.body.style.backgroundColor = "#121212";
-            localStorage.setItem("theme", "dark");
         } else {
             document.documentElement.classList.remove("dark");
-            document.documentElement.style.backgroundColor = "#ffffff";
-            document.body.style.backgroundColor = "#ffffff";
-            localStorage.setItem("theme", "light");
         }
     };
 
+    // Return true if the link matches the current page
     const isActive = (href: string) => {
         if (href === "/menu") return pathname === "/menu" || pathname === "/";
         return pathname === href;
@@ -67,7 +51,6 @@ export default function NavBar() {
             <button
                 onClick={toggleTheme}
                 className="ml-auto text-white p-2 rounded-full hover:bg-white/10 transition text-lg"
-                title="Toggle dark mode"
             >
                 {dark ? "☀️" : "🌙"}
             </button>

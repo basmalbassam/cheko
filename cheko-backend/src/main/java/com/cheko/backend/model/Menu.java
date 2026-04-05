@@ -33,7 +33,6 @@ public class Menu {
         this.lng = lng;
     }
 
-    // Getters & Setters
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
