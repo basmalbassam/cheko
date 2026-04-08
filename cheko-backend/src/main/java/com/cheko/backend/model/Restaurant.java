@@ -1,8 +1,8 @@
 package com.cheko.backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "restaurant")
@@ -14,6 +14,15 @@ public class Restaurant {
     private String image;
     private double lat;
     private double lng;
+
+
+    @ManyToMany
+    @JoinTable( // creates the junction table
+            name = "restaurant_menu",
+            joinColumns = @JoinColumn(name = "restaurant_id"),
+            inverseJoinColumns = @JoinColumn(name = "menu_id")
+    )
+    private List<Menu> menuItems = new ArrayList<>();
 
     public Restaurant() {}
 
@@ -39,4 +48,7 @@ public class Restaurant {
 
     public double getLng() { return lng; }
     public void setLng(double lng) { this.lng = lng; }
+
+    public List<Menu> getMenuItems() { return menuItems; }
+    public void setMenuItems(List<Menu> menuItems) { this.menuItems = menuItems; }
 }

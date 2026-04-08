@@ -1,9 +1,12 @@
 package com.cheko.backend.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "menu")
@@ -17,16 +20,14 @@ public class Menu {
     private String image;
     private int calorie;
     private String category;
-    private double lat;
-    private double lng;
 
-    // FK that links menu with restaurant
-    @Column(name = "restaurant_id")
-    private int restaurantId;
+    // menu item can belong to many restaurants
+    @ManyToMany(mappedBy = "menuItems") // (mappedBy = "menuItems") means Restaurant.java owns the @JoinTable definition
+    private List<Restaurant> restaurants = new ArrayList<>();
 
     public Menu() {}
 
-    public Menu(int id, String name, String description, double price, String image, int calorie, String category, double lat, double lng, int restaurantId) {
+    public Menu(int id, String name, String description, double price, String image, int calorie, String category) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -34,11 +35,7 @@ public class Menu {
         this.image = image;
         this.calorie = calorie;
         this.category = category;
-        this.lat = lat;
-        this.lng = lng;
-        this.restaurantId = restaurantId;
     }
-
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -60,13 +57,8 @@ public class Menu {
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
-
-    public double getLat() { return lat; }
-    public void setLat(double lat) { this.lat = lat; }
-
-    public double getLng() { return lng; }
-    public void setLng(double lng) { this.lng = lng; }
-
-    public int getRestaurantId() { return restaurantId; }
-    public void setRestaurantId(int restaurantId) { this.restaurantId = restaurantId; }
 }
+ /* Category enum:
+    - Stored as String in DB
+    - Controlled by enum in backend
+ */

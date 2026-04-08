@@ -9,6 +9,7 @@ public enum Category {
     RICE("Rice");
 
 
+    // display name used in the frontend
     private final String displayName;
 
     Category(String displayName) {

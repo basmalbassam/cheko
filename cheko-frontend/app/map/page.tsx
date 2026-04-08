@@ -1,132 +1,175 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import mapboxgl, { Map as MapboxMap } from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 
-// type for each menu item from the backend
-type MenuItem = {
+
+// type
+type RestaurantType = {
     id: number;
     name: string;
+    image: string;
     lat: number;
     lng: number;
-    image: string;
-    category: string;
 };
 
-// type for a restaurant location (multiple menu items at same location)
-type Restaurant = {
-    lat: number;
-    lng: number;
-    items: MenuItem[];
-};
+
+// Override MapLibre popup default white rectangle
+const popupStyles = ` .maplibregl-popup-content 
+            {
+             padding: 0 !important; border-radius: 16px !important;
+             box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important;
+             overflow: hidden !important; background: transparent !important;
+            }
+             .maplibregl-popup-tip { display: none !important; }
+             .maplibregl-popup-close-button { display: none !important; } `;
+
 
 export default function MapPage() {
-    const mapContainer = useRef<HTMLDivElement | null>(null);                           // reference to the div that Mapbox will render the map into
-    const map = useRef<MapboxMap | null>(null);                                                 // reference to the Mapbox map instance
-    const markersRef = useRef<{ marker: mapboxgl.Marker; restaurant: Restaurant }[]>([]);   // reference to all markers on the map, along with their restaurant data
 
-    const [menu, setMenu] = useState<MenuItem[]>([]);                             // all menu items fetched from the backend
-    const [search, setSearch] = useState("");                           // what the user type in the search box
-    const [selectedCategory, setSelectedCategory] = useState("All");    // which category is selected in the dropdown
+    const mapContainer = useRef<HTMLDivElement | null>(null);               // points to the <div> in the DOM where the map renders
+    const map = useRef<maplibregl.Map | null>(null);                                // holds the MapLibre map instance
+    const markersRef = useRef<{ marker: maplibregl.Marker; id: number }[]>([]);  // array of all current markers on the map
 
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
+    const [restaurants, setRestaurants] = useState<RestaurantType[]>([]); // list of all restaurants fetched from backend, triggers marker update
+    const [allCategories, setAllCategories] = useState<string[]>([]);     // returns all enum values for the dropdown
 
-    // Fetch data
+    const [searchInput, setSearchInput] = useState("");           // what the user is typing
+    const [activeSearch, setActiveSearch] = useState("");         // what was submitted
+    const [selectedCategory, setSelectedCategory] = useState(""); // triggers backend call when changed
+
+
+
+    // fetch categories from backend enum for dropdown
     useEffect(() => {
-        fetch(`/api/menu/locations`)
+        fetch("/api/menu/categories")
             .then((res) => res.json())
-            .then((data) => setMenu(data));
+            .then((data) => setAllCategories(data));
     }, []);
 
-    // Initialize map
+    // fetch restaurants from backend with search and category filter
     useEffect(() => {
-        if (!mapContainer.current || map.current) return;   // don't create the map if the div is not ready or map already exists
+        const params = new URLSearchParams();
+        if (activeSearch) params.set("search", activeSearch);
+        if (selectedCategory) params.set("category", selectedCategory);
 
-        map.current = new mapboxgl.Map({
+        fetch(`/api/restaurants?${params.toString()}`)
+            .then((res) => res.json())
+            .then((data) => setRestaurants(data));
+    }, [activeSearch, selectedCategory]);
+
+
+
+    // initialize the map
+    useEffect(() => {
+        if (!mapContainer.current || map.current) return;
+
+        map.current = new maplibregl.Map({
             container: mapContainer.current,
-            style: "mapbox://styles/mapbox/streets-v11",
-            center: [46.7, 24.7],
-            zoom: 10,
+            style: {
+                version: 8,
+                sources: {
+                    riyadh: {
+                        type: "vector",
+                        tiles: ["http://localhost:8090/services/riyadh/tiles/{z}/{x}/{y}.pbf"],
+                        minzoom: 0,
+                        maxzoom: 13,
+                    },
+                },
+                layers: [
+                    {
+                        id: "background",
+                        type: "background",
+                        paint: { "background-color": "#F2EFE9" },
+                    },
+                    {
+                        id: "buildings",
+                        type: "fill",
+                        source: "riyadh",
+                        "source-layer": "buildings",
+                        paint: {
+                            "fill-color": "#E2DAD1",
+                            "fill-opacity": 0.9,
+                        },
+                    },
+                    {
+                        id: "roads-minor",
+                        type: "line",
+                        source: "riyadh",
+                        "source-layer": "roads",
+                        filter: ["in", ["get", "highway"], ["literal", ["residential", "service", "unclassified", "footway", "path", "cycleway"]]],
+                        paint: {
+                            "line-color": "#FFFFFF",
+                            "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.5, 14, 2],
+                        },
+                    },
+                    {
+                        id: "roads-secondary",
+                        type: "line",
+                        source: "riyadh",
+                        "source-layer": "roads",
+                        filter: ["in", ["get", "highway"], ["literal", ["tertiary", "tertiary_link", "secondary", "secondary_link"]]],
+                        paint: {
+                            "line-color": "#FFFFFF",
+                            "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1, 14, 4],
+                        },
+                    },
+                    {
+                        id: "roads-major",
+                        type: "line",
+                        source: "riyadh",
+                        "source-layer": "roads",
+                        filter: ["in", ["get", "highway"], ["literal", ["primary", "primary_link", "trunk", "trunk_link", "motorway", "motorway_link"]]],
+                        paint: {
+                            "line-color": "#F4C842",
+                            "line-width": ["interpolate", ["linear"], ["zoom"], 8, 1.5, 13, 6],
+                        },
+                    },
+                ],
+            },
+            center: [46.6753, 24.7136],
+            zoom: 11,
         });
 
+        map.current.addControl(new maplibregl.NavigationControl(), "top-right");
+
         return () => {
-            map.current?.remove();  // remove the map when the component unmounts
+            map.current?.remove();
+            map.current = null;
         };
     }, []);
 
-    // Group items by lat/lng to restaurant locations
-    const getRestaurants = (items: MenuItem[]): Restaurant[] => {
-        const restaurants: Restaurant[] = [];
-
-        for (const item of items) {
-            // check if a restaurant already exists at this location
-            let found = false;
-
-            for (const restaurant of restaurants) {
-                if (restaurant.lat === item.lat && restaurant.lng === item.lng) {
-                    //  if location already exists, add this item to it
-                    restaurant.items.push(item);
-                    found = true;
-                    break;
-                }
-            }
-
-            // if no restaurant found at this location, create a new one
-            if (!found) {
-                restaurants.push({
-                    lat: item.lat,
-                    lng: item.lng,
-                    items: [item],
-                });
-            }
-        }
-        return restaurants;
-    };
-
-    // Add markers when data is ready
+    // update markers when filtered restaurants list changes
     useEffect(() => {
-        if (!map.current || menu.length === 0) return;
+        if (!map.current) return;
 
-        // Remove old markers
-        for (const { marker } of markersRef.current) {
-            marker.remove();
-        }
+        // remove all existing markers
+        for (const { marker } of markersRef.current) marker.remove();
         markersRef.current = [];
 
-        // group items into restaurant locations
-        const restaurants = getRestaurants(menu);
-
-        // create one marker for each restaurant location
-        restaurants.forEach((restaurant) => {
-
+        // Add a marker for each restaurant in the filtered list
+        for (const restaurant of restaurants) {
             const popupHTML = `
                 <div style="
-                    display:flex;
-                    align-items:center;
-                    gap:14px;
-                    width:300px;
-                    padding:14px;
-                    border-radius:16px;
-                    background:#ffffff;
-                    box-shadow:0 8px 24px rgba(0,0,0,0.15);
-                    font-family:Inter, system-ui;
+                    display:flex; align-items:center; gap:14px; width:300px; padding:14px; border-radius:16px; 
+                    background:#ffffff; box-shadow:0 8px 24px rgba(0,0,0,0.15); font-family:Inter, system-ui;
                 ">
-                   <img
-                        src="/Cheko_Logo.png"
+                    <img
+                        src="${restaurant.image}"
                         style="width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0;"
-                        alt="Cheko Logo"
-                   />
+                        alt="${restaurant.name}"
+                    />
                     <div style="flex:1;min-width:0;">
                         <h3 style="margin:0;font-size:15px;font-weight:600;color:#1E1E1E;">
-                            Cheko Restaurant
+                            ${restaurant.name}
                         </h3>
                         <span style="font-size:12px;color:#999;margin-top:4px;display:block;">
                             menu list
                         </span>
                     </div>
                     <button
-                        id="map-btn-${restaurant.lat}-${restaurant.lng}"
+                        id="map-btn-${restaurant.id}"
                         style="
                             width:38px;height:38px;border-radius:10px;border:none;
                             background:#F2CBDF;display:flex;align-items:center;
@@ -136,124 +179,93 @@ export default function MapPage() {
                 </div>
             `;
 
-            // mapbox popup with custom HTML
-            const popup = new mapboxgl.Popup({
+            const popup = new maplibregl.Popup({
                 offset: 25,
                 closeButton: false,
+                maxWidth: "400px"
             }).setHTML(popupHTML);
 
-            const marker = new mapboxgl.Marker()
+            const marker = new maplibregl.Marker()
                 .setLngLat([restaurant.lng, restaurant.lat])
                 .setPopup(popup)
                 .addTo(map.current!);
 
+            // button to navigate to this restaurant menu
             popup.on("open", () => {
-                const btn = document.getElementById(
-                    `map-btn-${restaurant.lat}-${restaurant.lng}`
-                );
+                const btn = document.getElementById(`map-btn-${restaurant.id}`);
                 if (btn) {
                     btn.addEventListener("click", () => {
+                        // store the restaurant id so menu page can auto select it
+                        sessionStorage.setItem("selectedRestaurantId", String(restaurant.id));
                         window.location.href = "/menu";
                     });
                 }
             });
 
-            // save marker + restaurant data for search and filter
-            markersRef.current.push({marker, restaurant});
-        });
-    }, [menu]); // runs when menu data changes
-
-    // Show or hide markers based on search and category filter
-    useEffect(() => {
-        for (const { marker, restaurant } of markersRef.current) {
-
-            // check if any item in this restaurant matches the search text
-            let matchesSearch = false;
-            if (search === "") {
-                // no search text → show everything
-                matchesSearch = true;
-            } else {
-                for (const item of restaurant.items) {
-                    if (
-                        item.name.toLowerCase().includes(search.toLowerCase()) ||
-                        item.category.toLowerCase().includes(search.toLowerCase())
-                    ) {
-                        matchesSearch = true;
-                        break; // found a match, no need to check more items
-                    }
-                }
-            }
-
-            // check if any item in this restaurant matches the selected category
-            let matchesCategory = false;
-            if (selectedCategory === "All") {
-                // no category filter → show everything
-                matchesCategory = true;
-            } else {
-                for (const item of restaurant.items) {
-                    if (item.category === selectedCategory) {
-                        matchesCategory = true;
-                        break; // found a match, no need to check more items
-                    }
-                }
-            }
-
-            // show marker if both conditions match, hide otherwise
-            if (matchesSearch && matchesCategory) {
-                marker.getElement().style.display = "";     // show
-            } else {
-                marker.getElement().style.display = "none"; // hide
-            }
+            markersRef.current.push({ marker, id: restaurant.id });
         }
-    }, [search, selectedCategory]); // runs when search or category changes
+    }, [restaurants]);
 
-    const categories: string[] = ["All"];
-    for (const item of menu) {
-        if (!categories.includes(item.category)) {
-            categories.push(item.category);
-        }
-    }
-    categories.sort();
-    // put "All" back at the beginning after sorting
-    const sortedCategories = ["All", ...categories.filter((c) => c !== "All")];
+
+
+    // handle search button click
+    const handleSearch = () => {
+        setActiveSearch(searchInput);
+    };
 
     return (
         <div className="p-6">
 
-            {/* search + filter */}
+            {/* inject popup CSS override */}
+            <style>{popupStyles}</style>
+
+            {/* search + filter Bar */}
             <div className="flex gap-3 mb-4">
 
-                {/* search input */}
+                {/* search input, searches restaurant name and menu item names */}
                 <div className="flex items-center gap-2 border border-gray-200 dark:border-gray-700 rounded-xl px-4 flex-1 bg-white dark:bg-[#1E1E1E]">
                     <span className="text-gray-400 text-sm">🔍</span>
                     <input
                         type="text"
-                        placeholder="Search menu items..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search restaurants or menu items..."
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                         className="flex-1 py-2.5 outline-none bg-transparent text-sm dark:text-white placeholder:text-gray-400"
                     />
+                    {activeSearch && (
+                        <button
+                            onClick={() => { setSearchInput(""); setActiveSearch(""); }}
+                            className="text-gray-400 hover:text-gray-600 text-xs"
+                        >
+                            ✕
+                        </button>
+                    )}
                 </div>
 
-                {/* category dropdown */}
+                {/* category dropdown, filters pins to only restaurants that serve that category */}
                 <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                     className="border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm bg-white dark:bg-[#1E1E1E] dark:text-white outline-none"
                 >
-                    {sortedCategories.map((cat) => (
+                    <option value="">All</option>
+                    {allCategories.map((cat) => (
                         <option key={cat} value={cat}>
                             {cat}
                         </option>
                     ))}
                 </select>
 
-                <button className="bg-pink-300 text-black px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-pink-400 transition">
+                <button
+                    onClick={handleSearch}
+                    className="bg-pink-300 text-black px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-pink-400 transition"
+                >
                     Search
                 </button>
             </div>
 
-            {/* map container, Mapbox renders the map inside this div */}
+            {/* map container */}
             <div
                 ref={mapContainer}
                 className="w-full rounded-2xl overflow-hidden"
@@ -262,4 +274,3 @@ export default function MapPage() {
         </div>
     );
 }
-

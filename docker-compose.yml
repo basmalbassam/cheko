@@ -40,5 +40,14 @@ services:
     ports:
       - "3000:3000"
 
+  tileserver:
+    build: ./mbtileserver
+    container_name: cheko-tileserver
+    restart: always
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./data:/data
+
 volumes:
   postgres_data:
